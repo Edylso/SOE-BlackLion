@@ -6,6 +6,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
+import streamlit.components.v1 as components
 from streamlit_option_menu import option_menu
 
 from config import DISCIPLINAS
@@ -20,11 +21,12 @@ st.markdown("""
     [data-testid="stMainBlockContainer"], .main .block-container { max-width: 1400px !important; padding-top: 1.5rem !important; }
     .stApp { background: #dce3eb; font-family: ui-rounded, 'Avenir Next', 'Segoe UI', sans-serif; }
     h1, h2, h3 { font-family: ui-rounded, 'Avenir Next', 'Segoe UI', sans-serif !important; color: #1f2937; }
-    [data-testid="stSidebar"], [data-testid="stSidebar"] > div:first-child { background: #123d61 !important; border-right: 1px solid #0f334f; min-width: 270px; }
+    [data-testid="stSidebar"], [data-testid="stSidebar"] > div:first-child { background: #0b1f33 !important; border-right: 1px solid #081827; min-width: 270px; }
     [data-testid="stSidebar"] * { color: #eef4f8; }
-    [data-testid="stSidebar"] [data-testid="stSelectbox"] > div > div { background: #0f334f; border: 1px solid #2a587a; border-radius: 4px; }
-    [data-testid="stSidebar"] input { background: #0f334f !important; border-radius: 4px !important; }
-    [data-testid="stSidebar"] .stMultiSelect [data-baseweb="select"] > div { background: #0f334f; border-radius: 4px; }
+    [data-testid="stSidebar"] [data-testid="stSelectbox"] > div > div { background: #123a5c; border: 1px solid #285477; border-radius: 4px; }
+    [data-testid="stSidebar"] input { background: #123a5c !important; border-radius: 4px !important; }
+    [data-testid="stSidebar"] .stMultiSelect [data-baseweb="select"] > div { background: #123a5c; border: 1px solid #285477; border-radius: 4px; }
+    [data-testid="stSidebar"] [data-baseweb="select"] > div > div:last-child { background: #123a5c !important; }
     [data-testid="stSidebar"] [role="radiogroup"] { gap: 7px; }
     [data-testid="stSidebar"] [role="radiogroup"] label { padding: 9px 12px; border-radius: 5px; transition: .15s; }
     [data-testid="stSidebar"] [role="radiogroup"] label:hover { background: #1b4b70; }
@@ -39,7 +41,7 @@ st.markdown("""
     .home-title h1 { color: #1f2937; font-size: 1.8rem; margin: 4px 0; }
     .home-title p { color: #64748b; margin: 0; }
     .stPlotlyChart { background: #fff; border: 1px solid #d7dde4; border-radius: 3px; padding: 6px; box-shadow: 0 8px 16px rgba(45, 58, 72, .20); }
-    .sidebar-brand { padding: 15px 7px 21px; border-bottom: 1px solid #2a587a; margin-bottom: 14px; }
+    .sidebar-brand { padding: 15px 7px 21px; border-bottom: 1px solid #21425e; margin-bottom: 14px; }
     .sidebar-brand .mark { display: inline-block; width: 38px; height: 38px; line-height: 38px; text-align: center; border-radius: 50%; background: #f59e0b; font-size: 20px; }
     .sidebar-brand h2 { display: inline; margin-left: 9px; color: white !important; font-size: 1.2rem; vertical-align: middle; }
     .sidebar-brand p { margin: 5px 0 0 48px; color: #d4c8ee; font-size: .73rem; }
@@ -49,9 +51,73 @@ st.markdown("""
     [data-testid="stDataFrame"], [data-testid="stForm"] { border-radius: 3px; box-shadow: 0 8px 16px rgba(45,58,72,.18); }
     .topbar { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1px solid #d7dde4; border-radius: 3px; padding: 11px 16px; margin: 0 0 18px; box-shadow: 0 7px 14px rgba(45,58,72,.16); }
     .topbar .crumb { color: #64748b; font-size: .86rem; }.topbar b { color: #123d61; }.topbar .user { color: #d97706; font-weight: 700; font-size: .86rem; }
-    .nav-caption { color: #a9c0d3; font-size: .66rem; font-weight: 800; letter-spacing: .08em; margin: 20px 8px 6px; }
+    .nav-caption { color: #a9c0d3 !important; font-size: .66rem; font-weight: 700; letter-spacing: .08em; margin: 20px 8px 6px; }
+    [data-testid="stSidebar"] .stButton > button { background: #123a5c !important; color: #d8e7f3 !important; border: 1px solid #285477 !important; box-shadow: none !important; font-weight: 600; }
+    [data-testid="stSidebar"] .stButton > button:hover { background: #1a4a70 !important; color: #fff !important; }
 </style>
 """, unsafe_allow_html=True)
+
+
+def aplicar_estilo_sidebar():
+    """Aplica a paleta na camada própria da barra lateral do Streamlit."""
+    components.html("""
+    <script>
+      const aplicar = () => {
+        try {
+          const doc = window.parent.document;
+          const sidebar = doc.querySelector('[data-testid="stSidebar"]');
+          if (!sidebar) return;
+          sidebar.style.setProperty('background', '#0b1f33', 'important');
+          sidebar.style.setProperty('border-right', '1px solid #081827', 'important');
+          const painel = sidebar.querySelector('[data-testid="stSidebarContent"]') || sidebar.firstElementChild;
+          if (painel) painel.style.setProperty('background', '#0b1f33', 'important');
+          // Os widgets recebem fundos próprios do BaseWeb; somente os campos
+          // editáveis ficam um tom acima do painel, nunca cinza ou branco.
+          sidebar.querySelectorAll('[data-baseweb="select"] > div, [data-baseweb="input"] > div, input').forEach((el) => {
+            el.style.setProperty('background', '#123a5c', 'important');
+            el.style.setProperty('border-color', '#285477', 'important');
+            el.style.setProperty('color', '#eef4f8', 'important');
+          });
+          sidebar.querySelectorAll('[data-baseweb="select"] > div > div:last-child, [data-baseweb="select"] button').forEach((el) => {
+            el.style.setProperty('background', '#123a5c', 'important');
+            el.style.setProperty('color', '#eef4f8', 'important');
+          });
+          sidebar.querySelectorAll('button').forEach((el) => {
+            if (el.innerText.trim() === 'Sair') {
+              el.style.setProperty('background', '#123a5c', 'important');
+              el.style.setProperty('border', '1px solid #285477', 'important');
+              el.style.setProperty('box-shadow', 'none', 'important');
+              el.style.setProperty('color', '#d8e7f3', 'important');
+            }
+          });
+          sidebar.querySelectorAll('iframe').forEach((frame) => {
+            try {
+              const frameDoc = frame.contentDocument;
+              if (!frameDoc || frameDoc.getElementById('soe-menu-palette')) return;
+              const style = frameDoc.createElement('style');
+              style.id = 'soe-menu-palette';
+              style.textContent = `html, body, .nav, .nav-pills { background: #0b1f33 !important; }
+                .nav-link { color: #d8e2ef !important; background: transparent !important; }
+                .nav-link:hover { background: #123a5c !important; }
+                .nav-link.active { background: #2c7be5 !important; color: #fff !important; }
+                .nav-link i { color: #9fb3c8 !important; }
+                .nav-link.active i { color: #fff !important; }`;
+              frameDoc.head.appendChild(style);
+            } catch (_) {}
+          });
+          sidebar.querySelectorAll('p, label, h1, h2, h3, h4, span').forEach((el) => {
+            if (!el.closest('[data-baseweb="select"]')) el.style.setProperty('color', '#eef4f8', 'important');
+          });
+          sidebar.querySelectorAll('.nav-caption').forEach((el) => {
+            el.style.setProperty('color', '#a9c0d3', 'important');
+            el.style.setProperty('font-weight', '700', 'important');
+          });
+        } catch (_) {}
+      };
+      aplicar();
+      setInterval(aplicar, 400);
+    </script>
+    """, height=0, width=0)
 
 
 def login():
@@ -114,6 +180,15 @@ def _cartao_indicador(rotulo, valor):
     )
 
 
+def _grafico_vazio(titulo, mensagem):
+    fig = go.Figure()
+    fig.add_annotation(text=mensagem, x=0.5, y=0.5, xref="paper", yref="paper", showarrow=False,
+                       font={"size": 15, "color": "#64748b"}, align="center")
+    fig.update_layout(title=titulo, height=300, margin=dict(l=4, r=4, t=45, b=4), paper_bgcolor="#ffffff",
+                      plot_bgcolor="#ffffff", font_color="#1f2937", xaxis={"visible": False}, yaxis={"visible": False})
+    return fig
+
+
 def dashboard(concurso_id, disciplinas, termo):
     st.markdown("""<div style="background:#ffffff;border:1px solid #d7dde4;border-radius:4px;
         padding:22px 24px;margin-bottom:18px;box-shadow:0 10px 20px rgba(45,58,72,.20);">
@@ -163,17 +238,22 @@ def dashboard(concurso_id, disciplinas, termo):
     st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
     g1, g2 = st.columns((1.35, 1))
     with g1:
-        fig = px.bar(progresso.sort_values("horas", ascending=True), x="horas", y="disciplina", orientation="h", color="horas", color_continuous_scale=["#c4d9e8", "#123d61"], title="Horas por disciplina")
-        fig.update_layout(coloraxis_showscale=False, height=300, margin=dict(l=0, r=0, t=45, b=0), plot_bgcolor="#fff", paper_bgcolor="#fff", font_color="#475569")
-        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+        with st.container(border=True):
+            if progresso["horas"].sum() == 0:
+                fig = _grafico_vazio("Horas por disciplina", "Registre uma sessão de estudo<br>para acompanhar as horas por disciplina.")
+            else:
+                fig = px.bar(progresso.sort_values("horas", ascending=True), x="horas", y="disciplina", orientation="h", color="horas", color_continuous_scale=["#c4d9e8", "#123d61"], title="Horas por disciplina")
+                fig.update_layout(coloraxis_showscale=False, height=300, margin=dict(l=0, r=0, t=45, b=0), plot_bgcolor="#fff", paper_bgcolor="#fff", font_color="#475569")
+            st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     with g2:
-        if sessoes.empty:
-            dias = pd.DataFrame({"dia": ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"], "horas": [0] * 7})
-        else:
-            copia = sessoes.copy(); copia["dia"] = pd.to_datetime(copia.data).dt.day_name().map({"Monday":"Seg", "Tuesday":"Ter", "Wednesday":"Qua", "Thursday":"Qui", "Friday":"Sex", "Saturday":"Sáb", "Sunday":"Dom"}); dias = copia.groupby("dia", as_index=False).tempo_min.sum(); dias["horas"] = dias.tempo_min / 60
-        fig = px.area(dias, x="dia", y="horas", title="Ritmo semanal", color_discrete_sequence=["#f59e0b"])
-        fig.update_layout(height=300, margin=dict(l=0, r=0, t=45, b=0), plot_bgcolor="#fff", paper_bgcolor="#fff", font_color="#475569")
-        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+        with st.container(border=True):
+            if sessoes.empty:
+                fig = _grafico_vazio("Ritmo semanal", "Registre uma sessão de estudo<br>para visualizar seu ritmo semanal.")
+            else:
+                copia = sessoes.copy(); copia["dia"] = pd.to_datetime(copia.data).dt.day_name().map({"Monday":"Seg", "Tuesday":"Ter", "Wednesday":"Qua", "Thursday":"Qui", "Friday":"Sex", "Saturday":"Sáb", "Sunday":"Dom"}); dias = copia.groupby("dia", as_index=False).tempo_min.sum(); dias["horas"] = dias.tempo_min / 60
+                fig = px.area(dias, x="dia", y="horas", title="Ritmo semanal", color_discrete_sequence=["#f59e0b"])
+                fig.update_layout(height=300, margin=dict(l=0, r=0, t=45, b=0), plot_bgcolor="#fff", paper_bgcolor="#fff", font_color="#475569")
+            st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
 
 def quatro_grupos(concurso_id, disciplinas, termo):
@@ -321,6 +401,7 @@ def concursos(concurso_id):
 
 def executar():
     inicializar()
+    aplicar_estilo_sidebar()
     if not login(): return
     lista = consulta("SELECT id, nome FROM concursos ORDER BY criado_em DESC")
     with st.sidebar:
@@ -336,7 +417,7 @@ def executar():
             icons=["house-door-fill", "layers-fill", "journal-plus", "book-fill", "briefcase-fill"],
             default_index=0,
             styles={
-                "container": {"padding": "0!important", "background-color": "transparent"},
+                "container": {"padding": "0!important", "background-color": "#0b1f33"},
                 "icon": {"color": "#9fb3c8", "font-size": "16px"},
                 "nav-link": {"font-size": "14px", "font-weight": "600", "text-align": "left", "margin": "2px 0", "padding": "9px 12px", "border-radius": "5px", "color": "#d8e2ef"},
                 "nav-link-selected": {"background-color": "#2c7be5", "color": "#ffffff"},
