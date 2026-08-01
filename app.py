@@ -16,37 +16,40 @@ st.set_page_config(page_title="SOE-BlackLion", page_icon="📚", layout="wide", 
 
 st.markdown("""
 <style>
-    .stApp { background: #071727; font-family: ui-rounded, 'Avenir Next', 'Segoe UI', sans-serif; }
-    h1, h2, h3 { font-family: ui-rounded, 'Avenir Next', 'Segoe UI', sans-serif !important; color: #d8e2ef; }
-    [data-testid="stSidebar"] { background: #0a1828; border-right: 1px solid #1c3148; min-width: 270px; }
-    [data-testid="stSidebar"] * { color: #d8e2ef; }
-    [data-testid="stSidebar"] [data-testid="stSelectbox"] > div > div { background: #172a45; border: 1px solid #273b57; border-radius: 5px; }
-    [data-testid="stSidebar"] input { background: #172a45 !important; border-radius: 5px !important; }
-    [data-testid="stSidebar"] .stMultiSelect [data-baseweb="select"] > div { background: #172a45; border-radius: 5px; }
+    [data-testid="stAppViewContainer"], [data-testid="stApp"] { background: #dce3eb !important; }
+    [data-testid="stMainBlockContainer"], .main .block-container { max-width: 1400px !important; padding-top: 1.5rem !important; }
+    .stApp { background: #dce3eb; font-family: ui-rounded, 'Avenir Next', 'Segoe UI', sans-serif; }
+    h1, h2, h3 { font-family: ui-rounded, 'Avenir Next', 'Segoe UI', sans-serif !important; color: #1f2937; }
+    [data-testid="stSidebar"], [data-testid="stSidebar"] > div:first-child { background: #123d61 !important; border-right: 1px solid #0f334f; min-width: 270px; }
+    [data-testid="stSidebar"] * { color: #eef4f8; }
+    [data-testid="stSidebar"] [data-testid="stSelectbox"] > div > div { background: #0f334f; border: 1px solid #2a587a; border-radius: 4px; }
+    [data-testid="stSidebar"] input { background: #0f334f !important; border-radius: 4px !important; }
+    [data-testid="stSidebar"] .stMultiSelect [data-baseweb="select"] > div { background: #0f334f; border-radius: 4px; }
     [data-testid="stSidebar"] [role="radiogroup"] { gap: 7px; }
     [data-testid="stSidebar"] [role="radiogroup"] label { padding: 9px 12px; border-radius: 5px; transition: .15s; }
-    [data-testid="stSidebar"] [role="radiogroup"] label:hover { background: #13243a; }
-    [data-testid="stSidebar"] [role="radiogroup"] label[data-checked="true"] { background: #2c7be5; color: #fff !important; font-weight: 700; }
+    [data-testid="stSidebar"] [role="radiogroup"] label:hover { background: #1b4b70; }
+    [data-testid="stSidebar"] [role="radiogroup"] label[data-checked="true"] { background: #f59e0b; color: #123d61 !important; font-weight: 700; }
     [data-testid="stSidebar"] [role="radiogroup"] label[data-checked="true"] * { color: #fff !important; }
-    [data-testid="stMetric"] { background: #0f2236; border: 1px solid #1c3148; border-radius: 6px; padding: 18px 20px; box-shadow: 0 5px 14px rgba(0, 0, 0, .22); }
-    [data-testid="stMetricLabel"] { color: #9fb3c8; }
-    [data-testid="stMetricValue"] { color: #d8e2ef; }
+    [data-testid="stMetric"] { background: #ffffff; border: 1px solid #d7dde4; border-radius: 3px; padding: 18px 20px; box-shadow: 0 8px 16px rgba(45, 58, 72, .22); }
+    [data-testid="stColumn"]:has([data-testid="stMetric"]) { background: #ffffff; border: 1px solid #d7dde4; border-radius: 4px; padding: 5px 7px; box-shadow: 0 9px 18px rgba(45, 58, 72, .20); }
+    [data-testid="stMetricLabel"] { color: #64748b; }
+    [data-testid="stMetricValue"] { color: #123d61; }
     .home-title { padding: 8px 0 16px; }
-    .home-title span { color: #2c7be5; font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-    .home-title h1 { color: #d8e2ef; font-size: 1.8rem; margin: 4px 0; }
-    .home-title p { color: #9fb3c8; margin: 0; }
-    .stPlotlyChart { background: #0f2236; border: 1px solid #1c3148; border-radius: 6px; padding: 6px; box-shadow: 0 5px 14px rgba(0, 0, 0, .20); }
-    .sidebar-brand { padding: 15px 7px 21px; border-bottom: 1px solid #273b57; margin-bottom: 14px; }
-    .sidebar-brand .mark { display: inline-block; width: 38px; height: 38px; line-height: 38px; text-align: center; border-radius: 7px; background: #2c7be5; font-size: 20px; }
+    .home-title span { color: #d97706; font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .home-title h1 { color: #1f2937; font-size: 1.8rem; margin: 4px 0; }
+    .home-title p { color: #64748b; margin: 0; }
+    .stPlotlyChart { background: #fff; border: 1px solid #d7dde4; border-radius: 3px; padding: 6px; box-shadow: 0 8px 16px rgba(45, 58, 72, .20); }
+    .sidebar-brand { padding: 15px 7px 21px; border-bottom: 1px solid #2a587a; margin-bottom: 14px; }
+    .sidebar-brand .mark { display: inline-block; width: 38px; height: 38px; line-height: 38px; text-align: center; border-radius: 50%; background: #f59e0b; font-size: 20px; }
     .sidebar-brand h2 { display: inline; margin-left: 9px; color: white !important; font-size: 1.2rem; vertical-align: middle; }
     .sidebar-brand p { margin: 5px 0 0 48px; color: #d4c8ee; font-size: .73rem; }
-    .stButton > button, [data-testid="stFormSubmitButton"] > button { border: 0; border-radius: 5px; background: #2c7be5; color: white; font-weight: 700; }
+    .stButton > button, [data-testid="stFormSubmitButton"] > button { border: 0; border-radius: 4px; background: #f59e0b; color: #123d61; font-weight: 800; box-shadow: 0 3px 7px rgba(126, 81, 8, .22); }
     .stButton > button:hover, [data-testid="stFormSubmitButton"] > button:hover { border: 0; color: white; filter: brightness(1.07); }
-    [data-testid="stExpander"] { border: 1px solid #1c3148; border-radius: 6px; background: #0f2236; box-shadow: 0 5px 14px rgba(0,0,0,.18); }
-    [data-testid="stDataFrame"], [data-testid="stForm"] { border-radius: 6px; box-shadow: 0 5px 14px rgba(0,0,0,.18); }
-    .topbar { display: flex; align-items: center; justify-content: space-between; background: #0f2236; border: 1px solid #1c3148; border-radius: 6px; padding: 11px 16px; margin: 0 0 18px; box-shadow: 0 4px 12px rgba(0,0,0,.18); }
-    .topbar .crumb { color: #9fb3c8; font-size: .86rem; }.topbar b { color: #d8e2ef; }.topbar .user { color: #2c7be5; font-weight: 700; font-size: .86rem; }
-    .nav-caption { color: #9fb3c8; font-size: .66rem; font-weight: 800; letter-spacing: .08em; margin: 20px 8px 6px; }
+    [data-testid="stExpander"] { border: 1px solid #d7dde4; border-radius: 3px; background: #fff; box-shadow: 0 8px 16px rgba(45,58,72,.18); }
+    [data-testid="stDataFrame"], [data-testid="stForm"] { border-radius: 3px; box-shadow: 0 8px 16px rgba(45,58,72,.18); }
+    .topbar { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1px solid #d7dde4; border-radius: 3px; padding: 11px 16px; margin: 0 0 18px; box-shadow: 0 7px 14px rgba(45,58,72,.16); }
+    .topbar .crumb { color: #64748b; font-size: .86rem; }.topbar b { color: #123d61; }.topbar .user { color: #d97706; font-weight: 700; font-size: .86rem; }
+    .nav-caption { color: #a9c0d3; font-size: .66rem; font-weight: 800; letter-spacing: .08em; margin: 20px 8px 6px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -92,16 +95,32 @@ def aplicar_filtros(df, disciplinas, termo):
 
 def _anel(valor, titulo, cor):
     fig = go.Figure(go.Indicator(
-        mode="gauge+number", value=valor, number={"suffix": "%", "font": {"size": 28, "color": "#d8e2ef"}},
-        title={"text": titulo, "font": {"size": 13, "color": "#9fb3c8"}},
+        mode="gauge+number", value=valor, number={"suffix": "%", "font": {"size": 28, "color": "#123d61"}},
+        title={"text": titulo, "font": {"size": 13, "color": "#64748b"}},
         gauge={"axis": {"range": [0, 100], "visible": False}, "bar": {"color": cor, "thickness": 0.22},
-               "bgcolor": "#24384f", "borderwidth": 0}))
-    fig.update_layout(height=155, margin=dict(l=8, r=8, t=30, b=5), paper_bgcolor="rgba(0,0,0,0)", font_color="#d8e2ef")
+               "bgcolor": "#e5e7eb", "borderwidth": 0}))
+    fig.update_layout(height=155, margin=dict(l=8, r=8, t=30, b=5), paper_bgcolor="#ffffff", plot_bgcolor="#ffffff", font_color="#1f2937")
     return fig
 
 
+def _cartao_indicador(rotulo, valor):
+    st.markdown(
+        f"""<div style="background:#ffffff;border:1px solid #d7dde4;border-radius:4px;
+        padding:18px 20px;min-height:104px;box-shadow:0 10px 20px rgba(45,58,72,.24);">
+        <div style="font-size:13px;color:#64748b;margin-bottom:8px;">{rotulo}</div>
+        <div style="font-size:30px;font-weight:700;color:#123d61;line-height:1.1;">{valor}</div>
+        </div>""",
+        unsafe_allow_html=True,
+    )
+
+
 def dashboard(concurso_id, disciplinas, termo):
-    st.markdown("<div class='home-title'><span>Visão geral</span><h1>Seu ritmo de estudos</h1><p>Acompanhe seu progresso no concurso ativo.</p></div>", unsafe_allow_html=True)
+    st.markdown("""<div style="background:#ffffff;border:1px solid #d7dde4;border-radius:4px;
+        padding:22px 24px;margin-bottom:18px;box-shadow:0 10px 20px rgba(45,58,72,.20);">
+        <div style="color:#d97706;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">Visão geral</div>
+        <div style="color:#1f2937;font-size:30px;font-weight:800;margin:6px 0 12px;">Seu ritmo de estudos</div>
+        <div style="color:#64748b;font-size:15px;">Acompanhe seu progresso no concurso ativo.</div>
+        </div>""", unsafe_allow_html=True)
     topicos = pd.DataFrame(consulta("SELECT * FROM topicos WHERE concurso_id=?", (concurso_id,)))
     grupos_feitos = pd.DataFrame(consulta("""SELECT g.*, t.disciplina, t.assunto FROM grupos_executados g
                                             JOIN estudos e ON e.id=g.estudo_id JOIN topicos t ON t.id=e.topico_id WHERE t.concurso_id=?""", (concurso_id,)))
@@ -120,10 +139,11 @@ def dashboard(concurso_id, disciplinas, termo):
     estudos = aplicar_filtros(estudos, disciplinas, termo)
     progresso_geral = (len(estudos) / len(topicos) * 100) if len(topicos) else 0
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Horas estudadas", f"{total_horas:.1f} h")
-    c2.metric("Questões resolvidas", total_q)
-    c3.metric("Nota líquida Cebraspe", acertos - erros)
-    c4.metric("Grupos executados", concluidas)
+    with c1: _cartao_indicador("Horas estudadas", f"{total_horas:.1f} h")
+    with c2: _cartao_indicador("Questões resolvidas", total_q)
+    with c3: _cartao_indicador("Nota líquida Cebraspe", acertos - erros)
+    with c4: _cartao_indicador("Grupos executados", concluidas)
+    st.markdown("<div style='height:18px'></div>", unsafe_allow_html=True)
     if topicos.empty:
         st.warning("Nenhum tópico encontrado com os filtros atuais.")
         return
@@ -134,21 +154,25 @@ def dashboard(concurso_id, disciplinas, termo):
     else: progresso["horas"] = 0
     progresso["horas"] = progresso["horas"].fillna(0)
     a, b, c = st.columns(3)
-    with a: st.plotly_chart(_anel(progresso_geral, "PROGRESSO DO EDITAL", "#2c7be5"), use_container_width=True, config={"displayModeBar": False})
-    with b: st.plotly_chart(_anel(aproveitamento, "APROVEITAMENTO", "#00d27a"), use_container_width=True, config={"displayModeBar": False})
-    with c: st.plotly_chart(_anel(min(concluidas / max(len(estudos) * 4, 1) * 100, 100), "CICLO 4 GRUPOS", "#6f42c1"), use_container_width=True, config={"displayModeBar": False})
+    with a:
+        with st.container(border=True): st.plotly_chart(_anel(progresso_geral, "PROGRESSO DO EDITAL", "#123d61"), use_container_width=True, config={"displayModeBar": False})
+    with b:
+        with st.container(border=True): st.plotly_chart(_anel(aproveitamento, "APROVEITAMENTO", "#f59e0b"), use_container_width=True, config={"displayModeBar": False})
+    with c:
+        with st.container(border=True): st.plotly_chart(_anel(min(concluidas / max(len(estudos) * 4, 1) * 100, 100), "CICLO 4 GRUPOS", "#457b9d"), use_container_width=True, config={"displayModeBar": False})
+    st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
     g1, g2 = st.columns((1.35, 1))
     with g1:
-        fig = px.bar(progresso.sort_values("horas", ascending=True), x="horas", y="disciplina", orientation="h", color="horas", color_continuous_scale=["#a8d1ff", "#2c7be5"], title="Horas por disciplina")
-        fig.update_layout(coloraxis_showscale=False, height=300, margin=dict(l=0, r=0, t=45, b=0), plot_bgcolor="#0f2236", paper_bgcolor="#0f2236", font_color="#9fb3c8")
+        fig = px.bar(progresso.sort_values("horas", ascending=True), x="horas", y="disciplina", orientation="h", color="horas", color_continuous_scale=["#c4d9e8", "#123d61"], title="Horas por disciplina")
+        fig.update_layout(coloraxis_showscale=False, height=300, margin=dict(l=0, r=0, t=45, b=0), plot_bgcolor="#fff", paper_bgcolor="#fff", font_color="#475569")
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     with g2:
         if sessoes.empty:
             dias = pd.DataFrame({"dia": ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"], "horas": [0] * 7})
         else:
             copia = sessoes.copy(); copia["dia"] = pd.to_datetime(copia.data).dt.day_name().map({"Monday":"Seg", "Tuesday":"Ter", "Wednesday":"Qua", "Thursday":"Qui", "Friday":"Sex", "Saturday":"Sáb", "Sunday":"Dom"}); dias = copia.groupby("dia", as_index=False).tempo_min.sum(); dias["horas"] = dias.tempo_min / 60
-        fig = px.area(dias, x="dia", y="horas", title="Ritmo semanal", color_discrete_sequence=["#2c7be5"])
-        fig.update_layout(height=300, margin=dict(l=0, r=0, t=45, b=0), plot_bgcolor="#0f2236", paper_bgcolor="#0f2236", font_color="#9fb3c8")
+        fig = px.area(dias, x="dia", y="horas", title="Ritmo semanal", color_discrete_sequence=["#f59e0b"])
+        fig.update_layout(height=300, margin=dict(l=0, r=0, t=45, b=0), plot_bgcolor="#fff", paper_bgcolor="#fff", font_color="#475569")
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
 
@@ -322,7 +346,12 @@ def executar():
     with st.sidebar:
         st.markdown("<div class='nav-caption'>CONTA</div>", unsafe_allow_html=True)
         if st.button("Sair"): st.session_state.clear(); st.rerun()
-    st.markdown(f"<div class='topbar'><div class='crumb'>SOE-BlackLion &nbsp;/&nbsp; <b>{pagina}</b></div><div class='user'>● Estudo em andamento</div></div>", unsafe_allow_html=True)
+    st.markdown(f"""<div style="display:flex;align-items:center;justify-content:space-between;background:#ffffff;
+        border:1px solid #d7dde4;border-radius:4px;padding:12px 16px;margin:0 0 18px;
+        box-shadow:0 8px 16px rgba(45,58,72,.18);">
+        <div style="color:#64748b;font-size:14px;">SOE-BlackLion &nbsp;/&nbsp; <b style="color:#123d61;">{pagina}</b></div>
+        <div style="color:#d97706;font-size:13px;font-weight:700;">● Estudo em andamento</div>
+        </div>""", unsafe_allow_html=True)
     if pagina == "Home": dashboard(concurso_id, disciplinas, termo)
     elif pagina == "Método dos 4 Grupos": quatro_grupos(concurso_id, disciplinas, termo)
     elif pagina == "Registrar estudo": registros(concurso_id, disciplinas)
