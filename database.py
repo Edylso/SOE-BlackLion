@@ -1,5 +1,6 @@
 """Persistência local do aplicativo SOE-BlackLion."""
 import sqlite3
+import json
 from contextlib import contextmanager
 from datetime import date
 import re
@@ -58,6 +59,21 @@ def inicializar():
                 observacoes TEXT DEFAULT '', UNIQUE(estudo_id, grupo),
                 FOREIGN KEY(estudo_id) REFERENCES estudos(id)
             );
+            CREATE TABLE IF NOT EXISTS provas_analisadas (
+                id INTEGER PRIMARY KEY, concurso_id INTEGER NOT NULL, nome TEXT NOT NULL,
+                total_questoes INTEGER NOT NULL, texto TEXT NOT NULL, criado_em TEXT NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS ocorrencias_prova (
+                id INTEGER PRIMARY KEY, prova_id INTEGER NOT NULL, topico_id INTEGER NOT NULL,
+                ocorrencias INTEGER NOT NULL DEFAULT 0, percentual REAL NOT NULL DEFAULT 0,
+                UNIQUE(prova_id, topico_id), FOREIGN KEY(prova_id) REFERENCES provas_analisadas(id),
+                FOREIGN KEY(topico_id) REFERENCES topicos(id)
+            );
+            CREATE TABLE IF NOT EXISTS planejamentos_semanais (
+                id INTEGER PRIMARY KEY, concurso_id INTEGER NOT NULL, semana TEXT NOT NULL,
+                layout_json TEXT NOT NULL, copias_json TEXT NOT NULL DEFAULT '{}', atualizado_em TEXT NOT NULL,
+                UNIQUE(concurso_id, semana)
+            );
         """)
         concurso = conn.execute("SELECT id FROM concursos WHERE nome=?", (CONCURSO_PADRAO,)).fetchone()
         if not concurso:
@@ -90,6 +106,8 @@ def inicializar():
         colunas_sessoes = {row[1] for row in conn.execute("PRAGMA table_info(sessoes)")}
         if "grupo" not in colunas_sessoes:
             conn.execute("ALTER TABLE sessoes ADD COLUMN grupo TEXT")
+        if "topico_id" not in colunas_sessoes:
+            conn.execute("ALTER TABLE sessoes ADD COLUMN topico_id INTEGER")
         # Migração da versão inicial: Português deixou de ser fracionado em
         # tópicos, pois o estudo será feito por provas completas. Só remove a
         # antiga carga automática se o usuário ainda não registrou uma aula.
@@ -118,13 +136,16 @@ def executar(sql, parametros=()):
         conn.execute(sql, parametros)
 
 
-def registrar_sessao(concurso_id, data, disciplina, atividade, grupo, tempo_min, questoes, observacoes):
-    executar("INSERT INTO sessoes (data, disciplina, atividade, grupo, tempo_min, questoes, observacoes, concurso_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (str(data), disciplina, atividade, grupo, tempo_min, questoes, observacoes, concurso_id))
+def registrar_sessao(concurso_id, data, disciplina, topico_id, atividade, grupo, tempo_min, questoes, observacoes):
+    executar("""INSERT INTO sessoes (data, disciplina, topico_id, atividade, grupo, tempo_min, questoes, observacoes, concurso_id)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+             (str(data), disciplina, topico_id, atividade, grupo, tempo_min, questoes, observacoes, concurso_id))
 
 
 def registrar_questoes(concurso_id, data, disciplina, assunto, fonte, ano, quantidade, acertos, erros, brancos, tempo_min):
-    executar("""INSERT INTO questoes (data, disciplina, assunto, fonte, ano, quantidade, acertos, erros, brancos, tempo_min)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", (str(data), disciplina, assunto, fonte, ano or None, quantidade, acertos, erros, brancos, tempo_min, concurso_id))
+    executar("""INSERT INTO questoes (data, disciplina, assunto, fonte, ano, quantidade, acertos, erros, brancos, tempo_min, concurso_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+             (str(data), disciplina, assunto, fonte, ano or None, quantidade, acertos, erros, brancos, tempo_min, concurso_id))
 
 
 def atualizar_revisao(revisao_id, percentual, questoes, tempo_min, status, proxima_revisao, observacoes):
@@ -184,6 +205,12 @@ def excluir_concurso(concurso_id):
             conn.execute(f"DELETE FROM topicos WHERE id IN ({marcadores_topicos})", topicos)
         conn.execute("DELETE FROM sessoes WHERE concurso_id=?", (concurso_id,))
         conn.execute("DELETE FROM questoes WHERE concurso_id=?", (concurso_id,))
+        provas = [r[0] for r in conn.execute("SELECT id FROM provas_analisadas WHERE concurso_id=?", (concurso_id,))]
+        if provas:
+            marcadores_provas = ",".join("?" for _ in provas)
+            conn.execute(f"DELETE FROM ocorrencias_prova WHERE prova_id IN ({marcadores_provas})", provas)
+        conn.execute("DELETE FROM provas_analisadas WHERE concurso_id=?", (concurso_id,))
+        conn.execute("DELETE FROM planejamentos_semanais WHERE concurso_id=?", (concurso_id,))
         conn.execute("DELETE FROM concursos WHERE id=?", (concurso_id,))
 
 
@@ -195,7 +222,78 @@ def excluir_topico(topico_id, concurso_id):
             conn.execute("DELETE FROM grupos_executados WHERE estudo_id=?", (estudo[0],))
             conn.execute("DELETE FROM estudos WHERE id=?", (estudo[0],))
         conn.execute("DELETE FROM revisoes WHERE topico_id=?", (topico_id,))
+        conn.execute("DELETE FROM ocorrencias_prova WHERE topico_id=?", (topico_id,))
         conn.execute("DELETE FROM topicos WHERE id=? AND concurso_id=?", (topico_id, concurso_id))
+
+
+def excluir_registros_historico(concurso_id, registros):
+    """Remove sessões, listas de questões ou grupos, sempre dentro do concurso."""
+    comandos = {
+        "Sessão": "DELETE FROM sessoes WHERE id=? AND concurso_id=?",
+        "Questões": "DELETE FROM questoes WHERE id=? AND concurso_id=?",
+        "Revisão": """DELETE FROM grupos_executados WHERE id=? AND estudo_id IN
+                      (SELECT e.id FROM estudos e JOIN topicos t ON t.id=e.topico_id WHERE t.concurso_id=?)""",
+    }
+    with conectar() as conn:
+        for tipo, registro_id in registros:
+            comando = comandos.get(tipo)
+            if comando:
+                conn.execute(comando, (int(registro_id), concurso_id))
+
+
+def atualizar_sessao_historico(concurso_id, registro_id, data_registro, disciplina, topico_id, atividade, grupo, tempo_min, questoes, observacoes):
+    executar("""UPDATE sessoes SET data=?, disciplina=?, topico_id=?, atividade=?, grupo=?, tempo_min=?, questoes=?, observacoes=?
+               WHERE id=? AND concurso_id=?""",
+             (str(data_registro), disciplina, topico_id, atividade, grupo, tempo_min, questoes, observacoes, registro_id, concurso_id))
+
+
+def atualizar_questoes_historico(concurso_id, registro_id, data_registro, disciplina, assunto, fonte, ano, quantidade, acertos, erros, brancos, tempo_min):
+    executar("""UPDATE questoes SET data=?, disciplina=?, assunto=?, fonte=?, ano=?, quantidade=?, acertos=?, erros=?, brancos=?, tempo_min=?
+               WHERE id=? AND concurso_id=?""",
+             (str(data_registro), disciplina, assunto, fonte, ano, quantidade, acertos, erros, brancos, tempo_min, registro_id, concurso_id))
+
+
+def atualizar_grupo_historico(concurso_id, registro_id, data_registro, grupo, acertos, erros, brancos, tempo_min, observacoes):
+    with conectar() as conn:
+        conn.execute("""UPDATE grupos_executados SET data=?, grupo=?, acertos=?, erros=?, brancos=?, tempo_min=?, observacoes=?
+                        WHERE id=? AND estudo_id IN
+                        (SELECT e.id FROM estudos e JOIN topicos t ON t.id=e.topico_id WHERE t.concurso_id=?)""",
+                     (str(data_registro), grupo, acertos, erros, brancos, tempo_min, observacoes, registro_id, concurso_id))
+
+
+def salvar_analise_prova(concurso_id, nome, texto, total_questoes, ocorrencias):
+    """Persiste uma prova e sua distribuição de incidência por tópico."""
+    with conectar() as conn:
+        cursor = conn.execute(
+            "INSERT INTO provas_analisadas (concurso_id, nome, total_questoes, texto, criado_em) VALUES (?, ?, ?, ?, ?)",
+            (concurso_id, nome.strip() or "Prova sem título", total_questoes, texto, str(date.today())),
+        )
+        prova_id = cursor.lastrowid
+        conn.executemany(
+            "INSERT INTO ocorrencias_prova (prova_id, topico_id, ocorrencias, percentual) VALUES (?, ?, ?, ?)",
+            [(prova_id, item["topico_id"], item["ocorrencias"], item["percentual"]) for item in ocorrencias],
+        )
+        return prova_id
+
+
+def carregar_planejamento_semana(concurso_id, semana):
+    with conectar() as conn:
+        registro = conn.execute("SELECT layout_json, copias_json FROM planejamentos_semanais WHERE concurso_id=? AND semana=?", (concurso_id, str(semana))).fetchone()
+        if not registro:
+            return None
+        try:
+            return {"layout": json.loads(registro["layout_json"]), "copias": json.loads(registro["copias_json"])}
+        except (TypeError, json.JSONDecodeError):
+            return None
+
+
+def salvar_planejamento_semana(concurso_id, semana, layout, copias):
+    with conectar() as conn:
+        conn.execute("""INSERT INTO planejamentos_semanais (concurso_id, semana, layout_json, copias_json, atualizado_em)
+                        VALUES (?, ?, ?, ?, ?)
+                        ON CONFLICT(concurso_id, semana) DO UPDATE SET layout_json=excluded.layout_json,
+                        copias_json=excluded.copias_json, atualizado_em=excluded.atualizado_em""",
+                     (concurso_id, str(semana), json.dumps(layout, ensure_ascii=False), json.dumps(copias, ensure_ascii=False), str(date.today())))
 
 
 def importar_topicos(concurso_id, itens):

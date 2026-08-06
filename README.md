@@ -87,8 +87,13 @@ streamlit run main.py
 1. Escolha ou crie um concurso em **Concursos**.
 2. Cole o conteúdo do edital para receber tópicos sugeridos e revise-os antes da importação.
 3. Registre a conclusão de cada aula/unidade no **Método dos 4 Grupos**, informando a quantidade total de questões.
-4. Registre grupos, sessões e questões resolvidas.
-5. Acompanhe o progresso na **Home**.
+4. Em **Registrar estudo**, escolha a disciplina e o tópico estudado antes de salvar a sessão.
+5. Registre grupos, sessões e questões resolvidas.
+6. Consulte a linha do tempo completa em **Histórico**.
+7. Em **Edital e tópicos**, envie uma prova em PDF/TXT ou cole o texto para calcular a incidência e a relevância de cada tópico do edital.
+8. Acompanhe o progresso na **Home**.
+
+Para PDFs, o arquivo deve conter texto selecionável. Provas escaneadas como imagem precisam ser convertidas por OCR antes ou ter seu conteúdo colado no campo de texto. A comparação é executada localmente por palavras-chave dos tópicos; por isso, revise o resultado quando a prova usar terminologia muito diferente do edital.
 
 No Método dos 4 Grupos, a aula atual usa o Grupo A e as três anteriores usam B, C e D. As questões são distribuídas intercaladamente: A = 1, 5, 9…; B = 2, 6, 10…; e assim por diante.
 
@@ -142,5 +147,7 @@ git remote set-url origin https://github.com/SEU_USUARIO/NOVO_REPOSITORIO.git
 - Busca, filtros e exclusão em lote de tópicos.
 - Método dos 4 Grupos orientado pela sequência de aulas.
 - Registro de sessões de estudo e banco de questões.
+- Histórico moderno de sessões, questões e revisões, com totais e filtros.
 - Múltiplos concursos, cada um com seu próprio edital e histórico.
 - Reinicialização ou exclusão de concurso com confirmação.
+- Análise local de provas por PDF, TXT ou texto colado, com ocorrências e relevância por tópico.
